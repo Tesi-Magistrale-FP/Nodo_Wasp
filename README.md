@@ -1,6 +1,6 @@
 # Nodo Wasp
-[Wasp](https://github.com/iotaledger/wasp) è un nodo software sviluppato dalla [IOTA Foundation](http://iota.org) per eseguire gli _IOTA Smart Contracts_
-(_ISC_) sullo _IOTA Tangle_.
+[Wasp](https://github.com/iotaledger/wasp) è un nodo software sviluppato dalla [IOTA Foundation](http://iota.org) per eseguire gli <strong>IOTA Smart Contracts
+(ISC)</strong> sul Tangle di IOTA.
 
 ### Requisiti
 - [Go](https://golang.org/dl/)
