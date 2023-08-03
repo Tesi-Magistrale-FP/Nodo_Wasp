@@ -15,6 +15,6 @@
   - [Even Better TOML](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
 
 ### Nodo Wasp
-- [Repository con versione più aggiornata](https://github.com/iotaledger/wasp)https://github.com/iotaledger/wasp)
+- [Repository con versione più aggiornata](https://github.com/iotaledger/wasp)
 - [Setup locale con Docker Desktop](https://github.com/iotaledger/wasp/tree/develop/tools/local-setup)
 - [Guida di IOTA | ISC, node e chains](https://wiki.iota.org/shimmer/smart-contracts/guide/chains_and_nodes/running-a-node/)
