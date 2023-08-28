@@ -34,6 +34,7 @@ import (
 	"github.com/iotaledger/wasp/packages/vm/core/accounts"
 	"github.com/iotaledger/wasp/packages/vm/core/coreprocessors"
 	"github.com/iotaledger/wasp/packages/vm/core/migrations/allmigrations"
+	"github.com/iotaledger/wasp/packages/vm/gas"
 	"github.com/iotaledger/wasp/packages/vm/processors"
 	"github.com/iotaledger/wasp/packages/vm/vmimpl"
 )
@@ -165,7 +166,7 @@ func testConsBasic(t *testing.T, n, f int) {
 		nodeLog := log.Named(nid.ShortString())
 		nodeSK := peerIdentities[i].GetPrivateKey()
 		nodeDKShare, err := dkShareProviders[i].LoadDKShare(committeeAddress)
-		chainStates[nid] = state.NewStore(mapdb.NewMapDB())
+		chainStates[nid] = state.NewStoreWithUniqueWriteMutex(mapdb.NewMapDB())
 		origin.InitChainByAliasOutput(chainStates[nid], ao0)
 		require.NoError(t, err)
 		nodes[nid] = cons.New(chainID, chainStates[nid], nid, nodeSK, nodeDKShare, procCache, consInstID, gpa.NodeIDFromPublicKey, accounts.CommonAccount(), nodeLog).AsGPA()
@@ -346,7 +347,7 @@ func testChained(t *testing.T, n, f, b int) {
 				inccounter.FuncIncCounter.Hname(),
 				dict.New(),
 				uint64(i*reqPerBlock+ii),
-				20000,
+				gas.LimitsDefault.MinGasPerRequest,
 			).Sign(scClient)
 			reqs = append(reqs, scRequest)
 			incTotal++
@@ -363,7 +364,7 @@ func testChained(t *testing.T, n, f, b int) {
 	}
 	testNodeStates := map[gpa.NodeID]state.Store{}
 	for _, nid := range nodeIDs {
-		testNodeStates[nid] = state.NewStore(mapdb.NewMapDB())
+		testNodeStates[nid] = state.NewStoreWithUniqueWriteMutex(mapdb.NewMapDB())
 		origin.InitChainByAliasOutput(testNodeStates[nid], originAO)
 	}
 	testChainInsts := make([]testConsInst, b)

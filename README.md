@@ -1,20 +1,27 @@
-# Nodo Wasp
-[Wasp](https://github.com/iotaledger/wasp) è un nodo software sviluppato dalla [IOTA Foundation](http://iota.org) per eseguire gli <strong>IOTA Smart Contracts
-(ISC)</strong> sul Tangle di IOTA.
+![Wasp logo](documentation/static/img/logo/WASP_logo_dark.png)
 
-### Requisiti
-- [Go](https://golang.org/dl/)
-- Gcc (o equivalente per Windows [(TDM-GCC)](https://jmeubank.github.io/tdm-gcc/))
-- [Rust](https://www.rust-lang.org/tools/install)
-- [Wasp-cli](https://github.com/iotaledger/wasp/releases)
-- [Wasm-pack](https://rustwasm.github.io/wasm-pack/installer/)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
-- [Visual Studio Code](https://code.visualstudio.com/Download) (VSCode)
-  - [Go Extension](https://marketplace.visualstudio.com/items?itemName=golang.Go)
-  - [Rust Analyzer](https://marketplace.visualstudio.com/items?itemName=matklad.rust-analyzer)
-  - [Even Better TOML](https://marketplace.visualstudio.com/items?itemName=tamasfe.even-better-toml)
+# Welcome to the Wasp repository!
 
-### Nodo Wasp
-- [Repository con versione più aggiornata](https://github.com/iotaledger/wasp)
-- [Setup locale con Docker Desktop](https://github.com/iotaledger/wasp/tree/develop/tools/local-setup)
-- [Guida di IOTA | ISC, node e chains](https://wiki.iota.org/shimmer/smart-contracts/guide/chains_and_nodes/running-a-node/)
+[Wasp](https://github.com/iotaledger/wasp) is a node software developed by the
+[IOTA Foundation](http://iota.org) to run the _IOTA Smart Contracts_
+(_ISC_ in short) on top of the _IOTA Tangle_.  Here's a [high level
+introduction](https://blog.iota.org/an-introduction-to-iota-smart-contracts-16ea6f247936)
+into ISC.
+
+The comprehensive overview of design decisions of _IOTA Smart Contracts_ can be found in the
+[whitepaper](https://github.com/iotaledger/wasp/raw/master/documentation/ISC_WP_Nov_10_2021.pdf).
+
+## Documentation
+
+The documentation for Wasp and IOTA Smart Contracts can be found on the [IOTA Wiki](https://wiki.iota.org/shimmer/smart-contracts/overview).
+
+## Contributing
+
+If you want to contribute to this repository, consider posting a [bug
+report](https://github.com/iotaledger/wasp/issues/new-issue), feature request
+or a [pull request](https://github.com/iotaledger/wasp/pulls/).
+
+Please read [this](documentation/docs/contribute.md) before creating a pull request.
+
+You can also join our [Discord server](https://discord.iota.org/) and ping us
+in `#smartcontracts-dev`.

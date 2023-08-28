@@ -7,7 +7,6 @@ import (
 	"io"
 	"time"
 
-	"github.com/iotaledger/hive.go/kvstore"
 	"github.com/iotaledger/wasp/packages/kv"
 	"github.com/iotaledger/wasp/packages/kv/buffered"
 	"github.com/iotaledger/wasp/packages/trie"
@@ -21,9 +20,8 @@ import (
 // The purpose of the Store is to store not only the latest version of the chain
 // state, but also past versions (up to a limit).
 //
-// Each version of the key-value pairs is stored in an immutable trie (provided by
-// the trie.go package). Therefore each *state index* corresponds to a unique
-// *trie root*.
+// Each version of the key-value pairs is stored in an immutable trie.
+// Each *state index* corresponds to a unique *trie root*.
 //
 // For each trie root, the Store also stores a Block, which contains the mutations
 // between the previous and current states, and allows to calculate the L1 commitment.
@@ -74,11 +72,11 @@ type Store interface {
 	Prune(trie.Hash) (trie.PruneStats, error)
 
 	// TakeSnapshot takes a snapshot of the block and trie at the given trie root.
-	TakeSnapshot(trie.Hash, kvstore.KVStore) error
+	TakeSnapshot(trie.Hash, io.Writer) error
 
 	// RestoreSnapshot restores the block and trie from the given snapshot.
 	// It is not required for the previous trie root to be present in the DB.
-	RestoreSnapshot(trie.Hash, kvstore.KVStore) error
+	RestoreSnapshot(trie.Hash, io.Reader) error
 }
 
 // A Block contains the mutations between the previous and current states,

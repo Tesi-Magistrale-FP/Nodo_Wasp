@@ -1,0 +1,32 @@
+copyright: ""
+name: mycontract3
+version: 0.0.1
+description: mycontract3 description
+author: ""
+license: ""
+repository: ""
+events: {}
+structs: {}
+typedefs: {}
+state:
+    utenti: map[String]String
+funcs:
+    registrazione:
+        params:
+            did: String
+            password: String
+        results:
+            esitoR: String
+    eliminazione:
+        params:
+            did: String
+            password: String
+        results:
+            esitoE: Bool
+views:
+    login:
+        params:
+            did: String
+            password: String
+        results:
+            esitoL: Bool

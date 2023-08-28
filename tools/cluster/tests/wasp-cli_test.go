@@ -45,6 +45,40 @@ func TestWaspCLINoChains(t *testing.T) {
 	require.Contains(t, out[0], "Total 0 chain(s)")
 }
 
+func TestWaspAuth(t *testing.T) {
+	w := newWaspCLITest(t, waspClusterOpts{
+		modifyConfig: func(nodeIndex int, configParams templates.WaspConfigParams) templates.WaspConfigParams {
+			configParams.AuthScheme = "jwt"
+			return configParams
+		},
+	})
+	_, err := w.Run("chain", "list", "--node=0", "--node=0")
+	require.Error(t, err)
+	out := w.MustRun("auth", "login", "--node=0", "-u=wasp", "-p=wasp")
+	require.Equal(t, "Successfully authenticated", out[1])
+	out = w.MustRun("chain", "list", "--node=0", "--node=0")
+	require.Contains(t, out[0], "Total 0 chain(s)")
+}
+
+func TestZeroGasFee(t *testing.T) {
+	w := newWaspCLITest(t)
+
+	const chainName = "chain1"
+	committee, quorum := w.ArgCommitteeConfig(0)
+
+	// test chain deploy command
+	w.MustRun("chain", "deploy", "--chain="+chainName, committee, quorum, "--evm-chainid=1091", "--block-keep-amount=123", "--node=0")
+	w.ActivateChainOnAllNodes(chainName, 0)
+	outs, err := w.Run("chain", "info", "--node=0", "--node=0")
+	require.NoError(t, err)
+	require.Contains(t, outs, "Gas fee: gas units * (100/1)")
+	_, err = w.Run("chain", "disable-gas-policy", "--node=0")
+	require.NoError(t, err)
+	outs, err = w.Run("chain", "info", "--node=0", "--node=0")
+	require.NoError(t, err)
+	require.Contains(t, outs, "Gas fee: gas units * (0/0)")
+}
+
 func TestWaspCLI1Chain(t *testing.T) {
 	w := newWaspCLITest(t)
 

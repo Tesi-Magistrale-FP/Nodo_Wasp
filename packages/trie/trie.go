@@ -103,24 +103,41 @@ func (tr *TrieUpdatable) newTerminalNode(triePath, pathExtension, value []byte) 
 // DebugDump prints the structure of the tree to stdout, for debugging purposes.
 func (tr *TrieReader) DebugDump() {
 	tr.IterateNodes(func(nodeKey []byte, n *NodeData, depth int) IterateNodesAction {
-		fmt.Printf("%s %v %s\n", strings.Repeat(" ", len(nodeKey)), nodeKey, n)
+		key := "[]"
+		if len(nodeKey) > 0 {
+			key = fmt.Sprintf("[%d]", nodeKey[len(nodeKey)-1])
+		}
+		indent := strings.Repeat(" ", depth*4)
+		fmt.Printf("%s %v %s\n", indent, key, n)
+		if n.Terminal != nil && !n.Terminal.IsValue {
+			fmt.Printf(
+				"%s     [v: %x -> %q]\n",
+				indent,
+				n.Terminal.Data,
+				ellipsis(tr.nodeStore.valueStore.Get(n.Terminal.Bytes()), 20),
+			)
+		}
 		return IterateContinue
 	})
 }
 
-func (tr *TrieReader) CopyToStore(snapshot KVStore) {
-	triePartition := makeWriterPartition(snapshot, partitionTrieNodes)
-	valuePartition := makeWriterPartition(snapshot, partitionValues)
-	refcounts := newRefcounts(snapshot)
-	tr.IterateNodes(func(_ []byte, n *NodeData, depth int) IterateNodesAction {
-		nodeKey := n.Commitment.Bytes()
-		triePartition.Set(nodeKey, tr.nodeStore.trieStore.Get(nodeKey))
-		if n.Terminal != nil && !n.Terminal.IsValue {
-			n.Terminal.ExtractValue()
-			valueKey := n.Terminal.Bytes()
-			valuePartition.Set(valueKey, tr.nodeStore.valueStore.Get(valueKey))
-		}
-		refcounts.incNodeAndValue(n)
-		return IterateContinue
-	})
+func ellipsis(b []byte, maxLen int) string {
+	if len(b) <= maxLen {
+		return string(b)
+	}
+	if maxLen < 3 {
+		maxLen = 3
+	}
+	return string(b[0:maxLen-3]) + "..."
+}
+
+// DebugDump prints the structure of the whole DB to stdout, for debugging purposes.
+func DebugDump(store KVStore, roots []Hash) {
+	fmt.Printf("[trie store]\n")
+	for _, root := range roots {
+		tr, err := NewTrieReader(store, root)
+		assertNoError(err)
+		tr.DebugDump()
+	}
+	newRefcounts(store).DebugDump()
 }

@@ -95,7 +95,8 @@ func SetInitialState(evmPartition kv.KVStore, evmChainID uint16) {
 var errChainIDMismatch = coreerrors.Register("chainId mismatch").Create()
 
 func applyTransaction(ctx isc.Sandbox) dict.Dict {
-	// we only want to charge gas for the actual execution of the ethereum tx
+	// We only want to charge gas for the actual execution of the ethereum tx.
+	// ISC magic calls enable gas burning temporarily when called.
 	ctx.Privileged().GasBurnEnable(false)
 	defer ctx.Privileged().GasBurnEnable(true)
 
@@ -110,15 +111,8 @@ func applyTransaction(ctx isc.Sandbox) dict.Dict {
 		panic(errChainIDMismatch)
 	}
 
-	// Send the tx to the emulator.
-	// ISC gas burn will be enabled right before executing the tx, and disabled right after,
-	// so that ISC magic calls are charged gas.
-	receipt, result, err := emu.SendTransaction(
-		tx,
-		ctx.Privileged().GasBurnEnable,
-		getTracer(ctx),
-		false,
-	)
+	// Execute the tx in the emulator.
+	receipt, result, err := emu.SendTransaction(tx, getTracer(ctx), false)
 
 	// Any gas burned by the EVM is converted to ISC gas units and burned as
 	// ISC gas.
@@ -157,7 +151,6 @@ func applyTransaction(ctx isc.Sandbox) dict.Dict {
 	ctx.Privileged().OnWriteReceipt(func(evmPartition kv.KVStore) {
 		saveExecutedTx(evmPartition, chainInfo, tx, receipt)
 	})
-
 	// revert the changes in the state / txbuilder in case of error
 	ctx.RequireNoError(revertErr)
 
@@ -252,11 +245,15 @@ func registerERC20NativeTokenOnRemoteChain(ctx isc.Sandbox) dict.Dict {
 				evm.FieldTokenDecimals:      codec.EncodeUint8(decimals),
 				evm.FieldFoundryTokenScheme: codec.EncodeTokenScheme(tokenScheme),
 			},
+			// FIXME why does this gas budget is higher than the allowance below
+			GasBudget: 50 * gas.LimitsDefault.MinGasPerRequest,
 		},
 	}
 	sd := ctx.EstimateRequiredStorageDeposit(req)
-	ctx.TransferAllowedFunds(ctx.AccountID(), isc.NewAssetsBaseTokens(sd))
-	req.Assets.AddBaseTokens(sd)
+	// this request is sent by contract account,
+	// so we move enough allowance for the gas fee below in the req.Assets.AddBaseTokens() function call
+	ctx.TransferAllowedFunds(ctx.AccountID(), isc.NewAssetsBaseTokens(sd+10*gas.LimitsDefault.MinGasPerRequest))
+	req.Assets.AddBaseTokens(sd + 10*gas.LimitsDefault.MinGasPerRequest)
 	ctx.Send(req)
 
 	return nil
@@ -403,7 +400,8 @@ func tryGetRevertError(res *core.ExecutionResult) error {
 // callContract is called from the jsonrpc eth_estimateGas and eth_call endpoints.
 // The VM is in estimate gas mode, and any state mutations are discarded.
 func callContract(ctx isc.Sandbox) dict.Dict {
-	// we only want to charge gas for the actual execution of the ethereum tx
+	// We only want to charge gas for the actual execution of the ethereum tx.
+	// ISC magic calls enable gas burning temporarily when called.
 	ctx.Privileged().GasBurnEnable(false)
 	defer ctx.Privileged().GasBurnEnable(true)
 
@@ -412,8 +410,7 @@ func callContract(ctx isc.Sandbox) dict.Dict {
 	ctx.RequireCaller(isc.NewEthereumAddressAgentID(callMsg.From))
 
 	emu := createEmulator(ctx)
-
-	res, err := emu.CallContract(callMsg, ctx.Privileged().GasBurnEnable)
+	res, err := emu.CallContract(callMsg, ctx.Gas().EstimateGasMode())
 	ctx.RequireNoError(err)
 	ctx.RequireNoError(tryGetRevertError(res))
 

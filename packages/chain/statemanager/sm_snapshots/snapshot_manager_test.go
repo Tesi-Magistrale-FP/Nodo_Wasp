@@ -17,19 +17,25 @@ import (
 	"github.com/iotaledger/hive.go/runtime/ioutils"
 	"github.com/iotaledger/wasp/packages/chain/statemanager/sm_gpa/sm_gpa_utils"
 	"github.com/iotaledger/wasp/packages/isc"
+	"github.com/iotaledger/wasp/packages/metrics"
 	"github.com/iotaledger/wasp/packages/state"
 	"github.com/iotaledger/wasp/packages/testutil/testlogger"
 )
 
 const localSnapshotsPathConst = "testSnapshots"
 
+var (
+	localSnapshotsCreatePathConst   = filepath.Join(localSnapshotsPathConst, "create")
+	localSnapshotsDownloadPathConst = filepath.Join(localSnapshotsPathConst, "download")
+)
+
 func TestSnapshotManagerLocal(t *testing.T) {
 	createFun := func(chainID isc.ChainID, store state.Store, log *logger.Logger) SnapshotManager {
-		snapshotManager, err := NewSnapshotManager(context.Background(), nil, chainID, 0, localSnapshotsPathConst, []string{}, store, log)
+		snapshotManager, err := NewSnapshotManager(context.Background(), nil, chainID, 0, localSnapshotsCreatePathConst, []string{}, store, mockSnapshotsMetrics(), log)
 		require.NoError(t, err)
 		return snapshotManager
 	}
-	defer cleanupAfterTest(t)
+	defer cleanupAfterSnapshotManagerTest(t)
 
 	testSnapshotManagerSimple(t, createFun, func(isc.ChainID, []SnapshotInfo) {})
 }
@@ -38,23 +44,23 @@ func TestSnapshotManagerNetwork(t *testing.T) {
 	log := testlogger.NewLogger(t)
 	defer log.Sync()
 
-	err := ioutils.CreateDirectory(localSnapshotsPathConst, 0o777)
+	err := ioutils.CreateDirectory(localSnapshotsCreatePathConst, 0o777)
 	require.NoError(t, err)
 
 	port := ":9999"
-	handler := http.FileServer(http.Dir(localSnapshotsPathConst))
+	handler := http.FileServer(http.Dir(localSnapshotsCreatePathConst))
 	go http.ListenAndServe(port, handler)
 
 	createFun := func(chainID isc.ChainID, store state.Store, log *logger.Logger) SnapshotManager {
 		networkPaths := []string{"http://localhost" + port + "/"}
-		snapshotManager, err := NewSnapshotManager(context.Background(), nil, chainID, 0, "nonexistent", networkPaths, store, log)
+		snapshotManager, err := NewSnapshotManager(context.Background(), nil, chainID, 0, localSnapshotsDownloadPathConst, networkPaths, store, mockSnapshotsMetrics(), log)
 		require.NoError(t, err)
 		return snapshotManager
 	}
-	defer cleanupAfterTest(t)
+	defer cleanupAfterSnapshotManagerTest(t)
 
 	createIndexFileFun := func(chainID isc.ChainID, snapshotInfos []SnapshotInfo) {
-		indexFilePath := filepath.Join(localSnapshotsPathConst, chainID.String(), constIndexFileName)
+		indexFilePath := filepath.Join(localSnapshotsCreatePathConst, chainID.String(), constIndexFileName)
 		f, err := os.OpenFile(indexFilePath, os.O_CREATE|os.O_TRUNC|os.O_WRONLY, 0o666)
 		require.NoError(t, err)
 		defer f.Close()
@@ -82,7 +88,7 @@ func testSnapshotManagerSimple(
 	factory := sm_gpa_utils.NewBlockFactory(t)
 	blocks := factory.GetBlocks(numberOfBlocks, 1)
 	storeOrig := factory.GetStore()
-	snapshotManagerOrig, err := NewSnapshotManager(context.Background(), nil, factory.GetChainID(), uint32(snapshotCreatePeriod), localSnapshotsPathConst, []string{}, storeOrig, log)
+	snapshotManagerOrig, err := NewSnapshotManager(context.Background(), nil, factory.GetChainID(), uint32(snapshotCreatePeriod), localSnapshotsCreatePathConst, []string{}, storeOrig, mockSnapshotsMetrics(), log)
 	require.NoError(t, err)
 
 	// "Running" node, making snapshots
@@ -105,7 +111,7 @@ func testSnapshotManagerSimple(
 	snapshotsAvailableFun(factory.GetChainID(), createdSnapshots)
 
 	// Node is restarted
-	storeNew := state.NewStore(mapdb.NewMapDB())
+	storeNew := state.NewStoreWithUniqueWriteMutex(mapdb.NewMapDB())
 	snapshotManagerNew := createNewNodeFun(factory.GetChainID(), storeNew, log)
 
 	// Wait for node to read the list of snapshots
@@ -161,7 +167,11 @@ func ensureTrue(t *testing.T, title string, predicate func() bool, maxIterations
 	return false
 }
 
-func cleanupAfterTest(t *testing.T) {
+func cleanupAfterSnapshotManagerTest(t *testing.T) {
 	err := os.RemoveAll(localSnapshotsPathConst)
 	require.NoError(t, err)
+}
+
+func mockSnapshotsMetrics() *metrics.ChainSnapshotsMetrics {
+	return metrics.NewChainMetricsProvider().GetChainMetrics(isc.EmptyChainID()).Snapshots
 }

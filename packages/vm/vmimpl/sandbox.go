@@ -42,7 +42,7 @@ func (s *contractSandbox) DeployContract(programHash hashing.HashValue, name str
 }
 
 func (s *contractSandbox) Event(topic string, payload []byte) {
-	s.Ctx.GasBurn(gas.BurnCodeEmitEventFixed)
+	s.Ctx.GasBurn(gas.BurnCodeEmitEvent1P, uint64(len(topic)+len(payload)))
 	hContract := s.reqctx.CurrentContractHname()
 	hex := iotago.EncodeHex(payload)
 	if len(hex) > 80 {
@@ -195,4 +195,20 @@ func (s *contractSandbox) OnWriteReceipt(f isc.CoreCallbackFunc) {
 		contract: s.reqctx.CurrentContractHname(),
 		callback: f,
 	})
+}
+
+func (s *contractSandbox) TakeStateSnapshot() int {
+	s.reqctx.snapshots = append(s.reqctx.snapshots, stateSnapshot{
+		txb:   s.reqctx.vm.createTxBuilderSnapshot(),
+		state: s.reqctx.uncommittedState.Clone(),
+	})
+	return len(s.reqctx.snapshots) - 1
+}
+
+func (s *contractSandbox) RevertToStateSnapshot(i int) {
+	if i < 0 || i >= len(s.reqctx.snapshots) {
+		panic("invalid snapshot index")
+	}
+	s.reqctx.vm.restoreTxBuilderSnapshot(s.reqctx.snapshots[i].txb)
+	s.reqctx.uncommittedState.SetMutations(s.reqctx.snapshots[i].state.Mutations())
 }
