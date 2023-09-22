@@ -1,6 +1,5 @@
 # Nodo Wasp
-[Wasp](https://github.com/iotaledger/wasp) è un nodo software sviluppato dalla [IOTA Foundation](http://iota.org) per eseguire gli <strong>IOTA Smart Contracts
-(ISC)</strong> sul Tangle di IOTA.
+[Wasp](https://github.com/iotaledger/wasp) è un nodo software sviluppato dalla [IOTA Foundation](http://iota.org) per eseguire gli <strong>IOTA Smart Contracts (ISC)</strong> sul Tangle di IOTA.
 
 ### Requisiti
 - [Go](https://golang.org/dl/)
@@ -17,4 +16,41 @@
 ### Nodo Wasp
 - [Repository con versione più aggiornata](https://github.com/iotaledger/wasp)
 - [Setup locale con Docker Desktop](https://github.com/iotaledger/wasp/tree/develop/tools/local-setup)
-- [Guida di IOTA | ISC, node e chains](https://wiki.iota.org/shimmer/smart-contracts/guide/chains_and_nodes/running-a-node/)
+- [Guida di IOTA | ISC, node e chains](https://wiki.iota.org/wasp/running-a-node/)
+
+### Setup con Docker Desktop
+Comandi per eseguire un nodo Wasp localmente:
+`git clone https://github.com/Tesi-Magistrale-FP/Nodo_Wasp.git`
+`cd Nodo_Wasp\tools\local-setup`
+`docker-compose up -d`
+`docker volume create --name hornet-nest-db`
+`docker volume create --name wasp-db`
+`docker-compose up -d`
+
+### Setup chain di test
+Comandi per creare e attivare una chain di test su cui effettuare il deployment degli ISC:
+`cd Nodo_Wasp\tools\local-setup`
+`wasp-cli init`
+`wasp-cli set l1.apiaddress http://localhost:14265`
+`wasp-cli set l1.faucetaddress http://localhost:8091`
+`wasp-cli wasp add 0 http://localhost:9090`
+`wasp-cli request-funds`
+`wasp-cli chain deploy --chain=mychain`
+`wasp-cli chain add mychain <ID_CHAIN>`
+`wasp-cli chain activate --chain=mychain`
+`wasp-cli chain deposit base:500000000 --chain=mychain`
+
+### Generazione, deployment e interrograzione ISC
+Comandi per generare l'[ISC Autenticazione](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autenticazione), effettuare il suo deployment e chiamare le funzioni Func e View:
+`cd Nodo-Wasp\contracts\wasm`
+`schema -init autenticazione`
+`cd autenticazione`
+`**Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml)**`
+`schema -rs`
+`**Implementare la logica delle funzioni [func.rs](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/rs/autenticazioneimpl/src/funcs.rs)**`
+`schema -rs -build`
+`cd ..\..\tools\local-setup`
+`wasp-cli chain deploy-contract wasmtime autenticazione "autenticazione SC" ..\..\contracts\wasm\autenticazione\rs\autenticazionewasm\pkg\autenticazionewasm_bg.wasm --chain=mychain`
+`wasp-cli chain post-request autenticazione registrazione String did String "prova" String password String "prova" --chain=mychain -s`
+`wasp-cli chain call-view autenticazione login String did String "prova" String password String "prova" --chain=mychain | wasp-cli decode string esitoL bool`
+`wasp-cli chain post-request autenticazione eliminazione String did String "prova" String password String "prova" --chain=mychain -s`
