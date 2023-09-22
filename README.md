@@ -51,8 +51,9 @@ cd Nodo-Wasp\contracts\wasm
 schema -init autenticazione
 cd autenticazione
 ```
-Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml) <br>
-`schema -rs`<br>
+Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml) <br><br>
+`schema -rs`
+<br><br>
 Implementare la logica delle funzioni [func.rs](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/rs/autenticazioneimpl/src/funcs.rs)
 ```
 schema -rs -build
