@@ -1,6 +1,10 @@
 # Nodo Wasp
 [Wasp](https://github.com/iotaledger/wasp) è un nodo software sviluppato dalla [IOTA Foundation](http://iota.org) per eseguire gli <strong>IOTA Smart Contracts (ISC)</strong> sul Tangle di IOTA.
 
+### IOTA Smart Contracts implementati
+- [Autenticazione](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autenticazione): autentica gli utenti nell'ecosistema
+- [Gestione applicazioni](): gestisce le applicazioni pubblicate, le operazioni sui dati e le autorizzazioni concesse
+
 ### Requisiti
 - [Go](https://golang.org/dl/)
 - Gcc (o equivalente per Windows [(TDM-GCC)](https://jmeubank.github.io/tdm-gcc/))
