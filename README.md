@@ -45,10 +45,12 @@ Comandi per generare l'[ISC Autenticazione](https://github.com/Tesi-Magistrale-F
 ```
 cd Nodo-Wasp\contracts\wasm
 schema -init autenticazione
-cd autenticazione`
-**Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml)**
-schema -rs
-**Implementare la logica delle funzioni [func.rs](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/rs/autenticazioneimpl/src/funcs.rs)**`
+cd autenticazione
+```
+Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml)
+`schema -rs`
+Implementare la logica delle funzioni [func.rs](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/rs/autenticazioneimpl/src/funcs.rs)
+```
 schema -rs -build
 cd ..\..\tools\local-setup
 wasp-cli chain deploy-contract wasmtime autenticazione "autenticazione SC" ..\..\contracts\wasm\autenticazione\rs\autenticazionewasm\pkg\autenticazionewasm_bg.wasm --chain=mychain
