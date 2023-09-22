@@ -125,7 +125,7 @@ func (vmctx *vmContext) init(prevL1Commitment *state.L1Commitment) {
 	// save the OutputID of the newly created tokens, foundries and NFTs in the previous block
 	vmctx.withStateUpdate(func(chainState kv.KVStore) {
 		withContractState(chainState, accounts.Contract, func(s kv.KVStore) {
-			accounts.UpdateLatestOutputID(s, vmctx.task.AnchorOutputID.TransactionID())
+			accounts.UpdateLatestOutputID(s, vmctx.task.AnchorOutputID.TransactionID(), vmctx.task.AnchorOutput.StateIndex)
 		})
 	})
 
@@ -169,9 +169,10 @@ func (vmctx *vmContext) runRequests(
 	allReqs := lo.CopySlice(reqs)
 
 	// main loop over the batch of requests
+	requestIndexCounter := uint16(0)
 	for reqIndex := 0; reqIndex < len(allReqs); reqIndex++ {
 		req := allReqs[reqIndex]
-		result, unprocessableToRetry, skipReason := vmctx.runRequest(req, uint16(reqIndex), maintenanceMode)
+		result, unprocessableToRetry, skipReason := vmctx.runRequest(req, requestIndexCounter, maintenanceMode)
 		if skipReason != nil {
 			if errors.Is(vmexceptions.ErrNotEnoughFundsForSD, skipReason) {
 				unprocessable = append(unprocessable, req.(isc.OnLedgerRequest))
@@ -182,6 +183,8 @@ func (vmctx *vmContext) runRequests(
 				req.ID().String(), skipReason)
 			continue
 		}
+
+		requestIndexCounter++
 		results = append(results, result)
 		if req.IsOffLedger() {
 			numOffLedger++

@@ -1,0 +1,28 @@
+copyright: ""
+name: autenticazione
+version: 0.0.1
+description: smart contract per gestire l'autenticazione
+author: Paglia Francesco
+license: ""
+repository: ""
+events: {}
+structs: {}
+typedefs: {}
+state:
+    utenti: map[String]String
+funcs:
+    registrazione:
+        params:
+            did: String
+            password: String
+    eliminazione:
+        params:
+            did: String
+            password: String
+views:
+    login:
+        params:
+            did: String
+            password: String
+        results:
+            esitoL: Bool

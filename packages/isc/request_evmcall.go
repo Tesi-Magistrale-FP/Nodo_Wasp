@@ -1,6 +1,7 @@
 package isc
 
 import (
+	"encoding/json"
 	"fmt"
 	"io"
 
@@ -101,11 +102,17 @@ func (req *evmOffLedgerCallRequest) Params() dict.Dict {
 }
 
 func (req *evmOffLedgerCallRequest) SenderAccount() AgentID {
-	return NewEthereumAddressAgentID(req.callMsg.From)
+	return NewEthereumAddressAgentID(req.chainID, req.callMsg.From)
 }
 
 func (req *evmOffLedgerCallRequest) String() string {
-	return fmt.Sprintf("%T(%s)", req, req.ID())
+	// ignore error so String does not crash the app
+	data, _ := json.MarshalIndent(req.callMsg, " ", " ")
+	return fmt.Sprintf("%T::{ ID: %s, callMsg: %s }",
+		req,
+		req.ID(),
+		data,
+	)
 }
 
 func (req *evmOffLedgerCallRequest) TargetAddress() iotago.Address {

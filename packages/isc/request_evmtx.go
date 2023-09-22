@@ -1,6 +1,7 @@
 package isc
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -32,7 +33,7 @@ func NewEVMOffLedgerTxRequest(chainID ChainID, tx *types.Transaction) (OffLedger
 	return &evmOffLedgerTxRequest{
 		chainID: chainID,
 		tx:      tx,
-		sender:  NewEthereumAddressAgentID(sender),
+		sender:  NewEthereumAddressAgentID(chainID, sender),
 	}, nil
 }
 
@@ -53,7 +54,7 @@ func (req *evmOffLedgerTxRequest) Read(r io.Reader) error {
 	if err != nil {
 		return err
 	}
-	req.sender = NewEthereumAddressAgentID(sender)
+	req.sender = NewEthereumAddressAgentID(req.chainID, sender)
 	return rr.Err
 }
 
@@ -124,7 +125,13 @@ func (req *evmOffLedgerTxRequest) SenderAccount() AgentID {
 }
 
 func (req *evmOffLedgerTxRequest) String() string {
-	return fmt.Sprintf("%T(%s)", req, req.ID())
+	// ignore error so String does not crash the app
+	data, _ := json.MarshalIndent(req.tx, " ", " ")
+	return fmt.Sprintf("%T::{ ID: %s, Tx: %s }",
+		req,
+		req.ID(),
+		data,
+	)
 }
 
 func (req *evmOffLedgerTxRequest) TargetAddress() iotago.Address {

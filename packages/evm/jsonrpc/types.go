@@ -11,6 +11,7 @@ import (
 	"math/big"
 
 	"github.com/ethereum/go-ethereum"
+	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -169,32 +170,27 @@ func RPCMarshalReceipt(r *types.Receipt, tx *types.Transaction) map[string]inter
 		"cumulativeGasUsed": hexutil.Uint64(r.CumulativeGasUsed),
 		"gasUsed":           hexutil.Uint64(r.GasUsed),
 		"contractAddress":   r.ContractAddress,
-		"logs":              RPCMarshalLogs(r),
+		"logs":              rpcMarshalLogs(r),
 		"logsBloom":         r.Bloom,
 		"status":            hexutil.Uint64(r.Status),
 	}
 }
 
-func RPCMarshalLogs(r *types.Receipt) []interface{} {
+func rpcMarshalLogs(r *types.Receipt) []interface{} {
 	ret := make([]interface{}, len(r.Logs))
-	for i := range r.Logs {
-		ret[i] = RPCMarshalLog(r, uint(i))
+	for i, log := range r.Logs {
+		ret[i] = map[string]interface{}{
+			"logIndex":         hexutil.Uint(log.Index),
+			"blockNumber":      hexutil.Uint(log.BlockNumber),
+			"blockHash":        log.BlockHash,
+			"transactionHash":  log.TxHash,
+			"transactionIndex": hexutil.Uint(log.TxIndex),
+			"address":          log.Address,
+			"data":             hexutil.Bytes(log.Data),
+			"topics":           log.Topics,
+		}
 	}
 	return ret
-}
-
-func RPCMarshalLog(r *types.Receipt, logIndex uint) map[string]interface{} {
-	log := r.Logs[logIndex]
-	return map[string]interface{}{
-		"logIndex":         hexutil.Uint64(logIndex),
-		"blockNumber":      (*hexutil.Big)(r.BlockNumber),
-		"blockHash":        r.BlockHash,
-		"transactionHash":  r.TxHash,
-		"transactionIndex": hexutil.Uint64(r.TransactionIndex),
-		"address":          log.Address,
-		"data":             hexutil.Bytes(log.Data),
-		"topics":           log.Topics,
-	}
 }
 
 type RPCCallArgs struct {
@@ -402,4 +398,32 @@ func decodeTopic(s string) (common.Hash, error) {
 		err = fmt.Errorf("hex has invalid length %d after decoding; expected %d for topic", len(b), common.HashLength)
 	}
 	return common.BytesToHash(b), err
+}
+
+type revertError struct {
+	error
+	reason string // revert reason hex encoded
+}
+
+// ErrorCode returns the JSON error code for a revertal.
+// See: https://github.com/ethereum/wiki/wiki/JSON-RPC-Error-Codes-Improvement-Proposal
+func (e *revertError) ErrorCode() int {
+	return 3
+}
+
+// ErrorData returns the hex encoded revert reason.
+func (e *revertError) ErrorData() interface{} {
+	return e.reason
+}
+
+func newRevertError(revertData []byte) *revertError {
+	reason, errUnpack := abi.UnpackRevert(revertData)
+	err := errors.New("execution reverted")
+	if errUnpack == nil {
+		err = fmt.Errorf("execution reverted: %v", reason)
+	}
+	return &revertError{
+		error:  err,
+		reason: hexutil.Encode(revertData),
+	}
 }

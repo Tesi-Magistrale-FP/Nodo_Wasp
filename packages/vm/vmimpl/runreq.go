@@ -89,45 +89,44 @@ func (vmctx *vmContext) payoutAgentID() isc.AgentID {
 
 // creditAssetsToChain credits L1 accounts with attached assets and accrues all of them to the sender's account on-chain
 func (reqctx *requestContext) creditAssetsToChain() {
-	req := reqctx.req
-	if req.IsOffLedger() {
+	req, ok := reqctx.req.(isc.OnLedgerRequest)
+	if !ok {
 		// off ledger request does not bring any deposit
 		return
 	}
 	// Consume the output. Adjustment in L2 is needed because of storage deposit in the internal UTXOs
-	storageDepositNeeded := reqctx.vm.txbuilder.Consume(req.(isc.OnLedgerRequest))
+	storageDepositNeeded := reqctx.vm.txbuilder.Consume(req)
 
 	// if sender is specified, all assets goes to sender's sender
-	// Otherwise it all goes to the common sender and panics is logged in the SC call
+	// Otherwise it all goes to the common sender and panic is logged in the SC call
 	sender := req.SenderAccount()
 	if sender == nil {
-		if req.IsOffLedger() {
-			panic("nil sender on offledger requests should never happen")
+		if storageDepositNeeded > req.Assets().BaseTokens {
+			panic(vmexceptions.ErrNotEnoughFundsForSD) // if sender is not specified, and extra tokens are needed to pay for SD, the request cannot be processed.
 		}
 		// onleger request with no sender, send all assets to the payoutAddress
 		payoutAgentID := reqctx.vm.payoutAgentID()
-		creditNFTToAccount(reqctx.uncommittedState, payoutAgentID, req.NFT())
-		creditToAccount(reqctx.uncommittedState, payoutAgentID, req.Assets())
-
-		// debit any SD required for accounting UTXOs
+		creditNFTToAccount(reqctx.uncommittedState, payoutAgentID, req, reqctx.ChainID())
+		creditToAccount(reqctx.uncommittedState, payoutAgentID, req.Assets(), reqctx.ChainID())
 		if storageDepositNeeded > 0 {
-			debitFromAccount(reqctx.uncommittedState, payoutAgentID, isc.NewAssetsBaseTokens(storageDepositNeeded))
+			debitFromAccount(reqctx.uncommittedState, payoutAgentID, isc.NewAssetsBaseTokens(storageDepositNeeded), reqctx.ChainID())
 		}
 		return
 	}
 
 	senderBaseTokens := req.Assets().BaseTokens + reqctx.GetBaseTokensBalance(sender)
 
-	if senderBaseTokens < storageDepositNeeded {
+	minReqCost := reqctx.ChainInfo().GasFeePolicy.MinFee()
+	if senderBaseTokens < storageDepositNeeded+minReqCost {
 		// user doesn't have enough funds to pay for the SD needs of this request
 		panic(vmexceptions.ErrNotEnoughFundsForSD)
 	}
 
-	creditToAccount(reqctx.uncommittedState, sender, req.Assets())
-	creditNFTToAccount(reqctx.uncommittedState, sender, req.NFT())
+	creditToAccount(reqctx.uncommittedState, sender, req.Assets(), reqctx.ChainID())
+	creditNFTToAccount(reqctx.uncommittedState, sender, req, reqctx.ChainID())
 	if storageDepositNeeded > 0 {
 		reqctx.sdCharged = storageDepositNeeded
-		debitFromAccount(reqctx.uncommittedState, sender, isc.NewAssetsBaseTokens(storageDepositNeeded))
+		debitFromAccount(reqctx.uncommittedState, sender, isc.NewAssetsBaseTokens(storageDepositNeeded), reqctx.ChainID())
 	}
 }
 
@@ -396,7 +395,13 @@ func (reqctx *requestContext) chargeGasFee() {
 	if sendToValidator != 0 {
 		transferToValidator := &isc.Assets{}
 		transferToValidator.BaseTokens = sendToValidator
-		mustMoveBetweenAccounts(reqctx.uncommittedState, sender, reqctx.vm.task.ValidatorFeeTarget, transferToValidator)
+		mustMoveBetweenAccounts(
+			reqctx.uncommittedState,
+			sender,
+			reqctx.vm.task.ValidatorFeeTarget,
+			transferToValidator,
+			reqctx.ChainID(),
+		)
 	}
 
 	// ensure common account has at least minBalanceInCommonAccount, and transfer the rest of gas fee to payout AgentID
@@ -415,11 +420,22 @@ func (reqctx *requestContext) chargeGasFee() {
 			transferToCommonAcc -= excess
 			sendToPayout = excess
 		}
-		mustMoveBetweenAccounts(reqctx.uncommittedState, sender, accounts.CommonAccount(), isc.NewAssetsBaseTokens(transferToCommonAcc))
+		mustMoveBetweenAccounts(reqctx.uncommittedState,
+			sender,
+			accounts.CommonAccount(),
+			isc.NewAssetsBaseTokens(transferToCommonAcc),
+			reqctx.ChainID(),
+		)
 	}
 	if sendToPayout > 0 {
 		payoutAgentID := reqctx.vm.payoutAgentID()
-		mustMoveBetweenAccounts(reqctx.uncommittedState, sender, payoutAgentID, isc.NewAssetsBaseTokens(sendToPayout))
+		mustMoveBetweenAccounts(
+			reqctx.uncommittedState,
+			sender,
+			payoutAgentID,
+			isc.NewAssetsBaseTokens(sendToPayout),
+			reqctx.ChainID(),
+		)
 	}
 }
 

@@ -4,9 +4,8 @@
 package evmimpl
 
 import (
-	"fmt"
+	"encoding/hex"
 
-	"github.com/ethereum/go-ethereum/accounts/abi"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -22,6 +21,7 @@ import (
 	"github.com/iotaledger/wasp/packages/kv/dict"
 	"github.com/iotaledger/wasp/packages/util"
 	"github.com/iotaledger/wasp/packages/util/panicutil"
+	"github.com/iotaledger/wasp/packages/vm"
 	"github.com/iotaledger/wasp/packages/vm/core/accounts"
 	"github.com/iotaledger/wasp/packages/vm/core/errors/coreerrors"
 	"github.com/iotaledger/wasp/packages/vm/core/evm"
@@ -103,7 +103,7 @@ func applyTransaction(ctx isc.Sandbox) dict.Dict {
 	tx, err := evmtypes.DecodeTransaction(ctx.Params().Get(evm.FieldTransaction))
 	ctx.RequireNoError(err)
 
-	ctx.RequireCaller(isc.NewEthereumAddressAgentID(evmutil.MustGetSender(tx)))
+	ctx.RequireCaller(isc.NewEthereumAddressAgentID(ctx.ChainID(), evmutil.MustGetSender(tx)))
 
 	emu := createEmulator(ctx)
 
@@ -383,16 +383,13 @@ func getChainID(ctx isc.SandboxView) dict.Dict {
 	return result(codec.EncodeUint16(chainID))
 }
 
+// include the revert reason in the error
 func tryGetRevertError(res *core.ExecutionResult) error {
-	// try to include the revert reason in the error
 	if res.Err == nil {
 		return nil
 	}
 	if len(res.Revert()) > 0 {
-		reason, errUnpack := abi.UnpackRevert(res.Revert())
-		if errUnpack == nil {
-			return fmt.Errorf("%s: %v", res.Err.Error(), reason)
-		}
+		return vm.ErrEVMExecutionReverted.Create(hex.EncodeToString(res.Revert()))
 	}
 	return res.Err
 }
@@ -407,7 +404,7 @@ func callContract(ctx isc.Sandbox) dict.Dict {
 
 	callMsg, err := evmtypes.DecodeCallMsg(ctx.Params().Get(evm.FieldCallMsg))
 	ctx.RequireNoError(err)
-	ctx.RequireCaller(isc.NewEthereumAddressAgentID(callMsg.From))
+	ctx.RequireCaller(isc.NewEthereumAddressAgentID(ctx.ChainID(), callMsg.From))
 
 	emu := createEmulator(ctx)
 	res, err := emu.CallContract(callMsg, ctx.Gas().EstimateGasMode())

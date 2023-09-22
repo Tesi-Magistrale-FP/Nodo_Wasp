@@ -459,7 +459,7 @@ func (mpi *mempoolImpl) nonce(account isc.AgentID) uint64 {
 	if evmSender, ok := account.(*isc.EthereumAddressAgentID); ok {
 		return evmState.Nonce(evmSender.EthAddress())
 	}
-	return accountsState.Nonce(account)
+	return accountsState.Nonce(account, mpi.chainID)
 }
 
 func (mpi *mempoolImpl) shouldAddOffledgerRequest(req isc.OffLedgerRequest) error {
@@ -481,7 +481,7 @@ func (mpi *mempoolImpl) shouldAddOffledgerRequest(req isc.OffLedgerRequest) erro
 
 	// check user has on-chain balance
 	accountsState := accounts.NewStateAccess(mpi.chainHeadState)
-	if !accountsState.AccountExists(req.SenderAccount()) {
+	if !accountsState.AccountExists(req.SenderAccount(), mpi.chainID) {
 		// make an exception for gov calls (sender is chan owner and target is gov contract)
 		governanceState := governance.NewStateAccess(mpi.chainHeadState)
 		chainOwner := governanceState.ChainOwnerID()
@@ -647,6 +647,10 @@ func (mpi *mempoolImpl) handleReceiveOnLedgerRequest(request isc.OnLedgerRequest
 	// TODO: Do not process anything with SDRUC for now.
 	if _, ok := request.Features().ReturnAmount(); ok {
 		mpi.log.Warnf("dropping request, because it has ReturnAmount, ID=%v", requestID)
+		return
+	}
+	if request.SenderAccount() == nil {
+		// do not process requests without the sender feature
 		return
 	}
 	//

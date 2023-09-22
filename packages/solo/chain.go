@@ -288,7 +288,7 @@ func (ch *Chain) GetInfo() (isc.ChainID, isc.AgentID, map[isc.Hname]*root.Contra
 	res, err = ch.CallView(root.Contract.Name, root.ViewGetContractRecords.Name)
 	require.NoError(ch.Env.T, err)
 
-	contracts, err := root.DecodeContractRegistry(collections.NewMapReadOnly(res, root.StateVarContractRegistry))
+	contracts, err := root.DecodeContractRegistry(collections.NewMapReadOnly(res, root.VarContractRegistry))
 	require.NoError(ch.Env.T, err)
 	return ch.ChainID, chainOwnerID, contracts
 }
@@ -399,12 +399,13 @@ func (ch *Chain) GetRequestReceipt(reqID isc.RequestID) (*blocklog.RequestReceip
 	if err != nil || binRec == nil {
 		return nil, err
 	}
-	ret1, err := blocklog.RequestReceiptFromBytes(binRec)
 
+	ret1, err := blocklog.RequestReceiptFromBytes(
+		binRec,
+		resultDecoder.MustGetUint32(blocklog.ParamBlockIndex),
+		resultDecoder.MustGetUint16(blocklog.ParamRequestIndex),
+	)
 	require.NoError(ch.Env.T, err)
-	ret1.BlockIndex = resultDecoder.MustGetUint32(blocklog.ParamBlockIndex)
-	ret1.RequestIndex = resultDecoder.MustGetUint16(blocklog.ParamRequestIndex)
-
 	return ret1, nil
 }
 

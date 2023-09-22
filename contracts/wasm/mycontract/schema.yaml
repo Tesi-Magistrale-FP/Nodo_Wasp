@@ -9,15 +9,20 @@ events: {}
 structs: {}
 typedefs: {}
 state:
-    prova: String
+    utenti: map[String]String
 funcs:
-    init:
+    registrazione:
         params:
-            prova: String?
-    setProva:
+            did: String
+            password: String
+    eliminazione:
         params:
-            prova: String
+            did: String
+            password: String
 views:
-    getProva:
+    login:
+        params:
+            did: String
+            password: String
         results:
-            prova: String
+            esitoL: Bool

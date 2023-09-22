@@ -8,20 +8,11 @@ import (
 
 var Contract = coreutil.NewContract(coreutil.CoreContractBlocklog)
 
-const (
-	PrefixBlockRegistry      = "a"
-	prefixRequestLookupIndex = "b"
-	prefixRequestReceipts    = "c"
-	prefixRequestEvents      = "d"
-
-	// map of == request ID => unprocessableRequestRecord
-	prefixUnprocessableRequests = "u"
-	// array of request ID: list of unprocessable requests that
-	// need updating the outputID field
-	prefixNewUnprocessableRequests = "U"
-)
-
 var (
+	// Funcs
+	FuncRetryUnprocessable = coreutil.Func("retryUnprocessable")
+
+	// Views
 	ViewGetBlockInfo               = coreutil.ViewFunc("getBlockInfo")
 	ViewGetRequestIDsForBlock      = coreutil.ViewFunc("getRequestIDsForBlock")
 	ViewGetRequestReceipt          = coreutil.ViewFunc("getRequestReceipt")
@@ -31,13 +22,10 @@ var (
 	ViewGetEventsForBlock          = coreutil.ViewFunc("getEventsForBlock")
 	ViewGetEventsForContract       = coreutil.ViewFunc("getEventsForContract")
 	ViewHasUnprocessable           = coreutil.ViewFunc("hasUnprocessable")
-
-	// entrypoints
-	FuncRetryUnprocessable = coreutil.Func("retryUnprocessable")
 )
 
+// request parameters
 const (
-	// parameters
 	ParamBlockIndex                 = "n"
 	ParamBlockInfo                  = "i"
 	ParamContractHname              = "h"
@@ -50,4 +38,29 @@ const (
 	ParamEvent                      = "e"
 	ParamStateControllerAddress     = "s"
 	ParamUnprocessableRequestExists = "x"
+)
+
+const (
+	// Array of blockIndex => BlockInfo (pruned)
+	PrefixBlockRegistry = "a"
+
+	// Map of request.ID().LookupDigest() => []RequestLookupKey (pruned)
+	//   LookupDigest = reqID[:6] | outputIndex
+	//   RequestLookupKey = blockIndex | requestIndex
+	prefixRequestLookupIndex = "b"
+
+	// Map of RequestLookupKey => RequestReceipt (pruned)
+	//   RequestLookupKey = blockIndex | requestIndex
+	prefixRequestReceipts = "c"
+
+	// Map of EventLookupKey => event (pruned)
+	//   EventLookupKey = blockIndex | requestIndex | eventIndex
+	prefixRequestEvents = "d"
+
+	// Map of requestID => unprocessableRequestRecord
+	prefixUnprocessableRequests = "u"
+
+	// Array of requestID.
+	// Temporary list of unprocessable requests that need updating the outputID field
+	prefixNewUnprocessableRequests = "U"
 )

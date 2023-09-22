@@ -198,11 +198,12 @@ func (e *EVMChain) checkEnoughL2FundsForGasBudget(sender common.Address, evmGas 
 		return fmt.Errorf("could not fetch sender balance: %w", err)
 	}
 	gasFeePolicy := e.GasFeePolicy()
-	iscGasBudgetAffordable := gasFeePolicy.GasBudgetFromTokens(balance.Uint64())
-
-	iscGasBudgetTx := gas.EVMGasToISC(evmGas, &gasRatio)
 
 	gasLimits := e.gasLimits()
+
+	iscGasBudgetAffordable := gasFeePolicy.GasBudgetFromTokens(balance.Uint64(), gasLimits)
+
+	iscGasBudgetTx := gas.EVMGasToISC(evmGas, &gasRatio)
 
 	if iscGasBudgetTx > gasLimits.MaxGasPerRequest {
 		iscGasBudgetTx = gasLimits.MaxGasPerRequest
@@ -295,7 +296,11 @@ func (e *EVMChain) Balance(address common.Address, blockNumberOrHash *rpc.BlockN
 		return nil, err
 	}
 	accountsPartition := subrealm.NewReadOnly(chainState, kv.Key(accounts.Contract.Hname().Bytes()))
-	baseTokens := accounts.GetBaseTokensBalance(accountsPartition, isc.NewEthereumAddressAgentID(address))
+	baseTokens := accounts.GetBaseTokensBalance(
+		accountsPartition,
+		isc.NewEthereumAddressAgentID(*e.backend.ISCChainID(), address),
+		*e.backend.ISCChainID(),
+	)
 	return util.BaseTokensDecimalsToEthereumDecimals(baseTokens, parameters.L1().BaseToken.Decimals), nil
 }
 
@@ -620,28 +625,8 @@ func (e *EVMChain) iscRequestsInBlock(evmBlockNumber uint64) (*blocklog.BlockInf
 		return nil, nil, err
 	}
 	iscBlockIndex := iscState.BlockIndex()
-	reqIDs, err := blocklog.GetRequestIDsForBlock(iscState, iscBlockIndex)
-	if err != nil {
-		return nil, nil, err
-	}
-	reqs := make([]isc.Request, len(reqIDs))
-	for i, reqID := range reqIDs {
-		var receipt *blocklog.RequestReceipt
-		receipt, err = blocklog.GetRequestReceipt(iscState, reqID)
-		if err != nil {
-			return nil, nil, err
-		}
-		reqs[i] = receipt.Request
-	}
 	blocklogStatePartition := subrealm.NewReadOnly(iscState, kv.Key(blocklog.Contract.Hname().Bytes()))
-	block, ok := blocklog.GetBlockInfo(blocklogStatePartition, iscBlockIndex)
-	if !ok {
-		return nil, nil, fmt.Errorf("block not found: %d", evmBlockNumber)
-	}
-	if err != nil {
-		return nil, nil, err
-	}
-	return block, reqs, nil
+	return blocklog.GetRequestsInBlock(blocklogStatePartition, iscBlockIndex)
 }
 
 func (e *EVMChain) TraceTransaction(txHash common.Hash, config *tracers.TraceConfig) (any, error) {

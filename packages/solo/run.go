@@ -42,9 +42,6 @@ func (ch *Chain) RunOffLedgerRequests(reqs []isc.Request) []*vm.RequestResult {
 func (ch *Chain) RunRequestsSync(reqs []isc.Request, trace string) (results []*vm.RequestResult) {
 	ch.runVMMutex.Lock()
 	defer ch.runVMMutex.Unlock()
-
-	ch.mempool.ReceiveRequests(reqs...)
-
 	return ch.runRequestsNolock(reqs, trace)
 }
 
@@ -70,7 +67,7 @@ func (ch *Chain) runTaskNoLock(reqs []isc.Request, estimateGas bool) *vm.VMTaskR
 		ValidatorFeeTarget: ch.ValidatorFeeTarget,
 		Log:                ch.Log().Desugar().WithOptions(zap.AddCallerSkip(1)).Sugar(),
 		// state baseline is always valid in Solo
-		EnableGasBurnLogging: true,
+		EnableGasBurnLogging: ch.Env.enableGasBurnLogging,
 		EstimateGasMode:      estimateGas,
 		MigrationsOverride:   ch.migrationScheme,
 	}
@@ -128,6 +125,8 @@ func (ch *Chain) runRequestsNolock(reqs []isc.Request, trace string) (results []
 	l1C := ch.GetL1Commitment()
 	require.Equal(ch.Env.T, rootC, l1C.TrieRoot())
 
+	ch.Env.EnqueueRequests(tx)
+
 	return res.RequestResults
 }
 
@@ -155,8 +154,6 @@ func (ch *Chain) settleStateTransition(stateTx *iotago.Transaction, stateDraft s
 	}
 	ch.Log().Infof("state transition --> #%d. Requests in the block: %d. Outputs: %d",
 		stateDraft.BlockIndex(), len(blockReceipts), len(stateTx.Essence.Outputs))
-
-	go ch.Env.EnqueueRequests(stateTx)
 }
 
 func (ch *Chain) logRequestLastBlock() {

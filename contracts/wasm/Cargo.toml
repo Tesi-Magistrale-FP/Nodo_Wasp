@@ -1,3 +1,6 @@
+# Copyright 2020 IOTA Stiftung
+# SPDX-License-Identifier: Apache-2.0
+
 [workspace]
 members = [
 #    "corecontracts/rs/corecontracts",
@@ -24,9 +27,9 @@ members = [
 #    "gascalibration/storage/rs/storage",
 #    "gascalibration/storage/rs/storageimpl",
 #    "gascalibration/storage/rs/storagewasm",
-    "helloworld/rs/helloworld",
-    "helloworld/rs/helloworldimpl",
-    "helloworld/rs/helloworldwasm",
+#    "helloworld/rs/helloworld",
+#    "helloworld/rs/helloworldimpl",
+#    "helloworld/rs/helloworldwasm",
 #    "inccounter/rs/inccounter",
 #    "inccounter/rs/inccounterimpl",
 #    "inccounter/rs/inccounterwasm",
@@ -45,21 +48,12 @@ members = [
 #    "tokenregistry/rs/tokenregistry",
 #    "tokenregistry/rs/tokenregistryimpl",
 #    "tokenregistry/rs/tokenregistrywasm",
-	"mycontract/rs/mycontract",
-	"mycontract/rs/mycontractimpl",
-	"mycontract/rs/mycontractwasm",
-	"mycontract1/rs/mycontract1",
-	"mycontract1/rs/mycontract1impl",
-	"mycontract1/rs/mycontract1wasm",
-	"mycontract2/rs/mycontract2",
-	"mycontract2/rs/mycontract2impl",
-	"mycontract2/rs/mycontract2wasm",
-	"mycontract3/rs/mycontract3",
-	"mycontract3/rs/mycontract3impl",
-	"mycontract3/rs/mycontract3wasm",
-	"mycontract4/rs/mycontract4",
-	"mycontract4/rs/mycontract4impl",
-	"mycontract4/rs/mycontract4wasm",
+#	"mycontract/rs/mycontract",
+#	"mycontract/rs/mycontractimpl",
+#	"mycontract/rs/mycontractwasm",
+	"autenticazione/rs/autenticazione",
+	"autenticazione/rs/autenticazioneimpl",
+	"autenticazione/rs/autenticazionewasm",
 ]
 
 [profile.release]

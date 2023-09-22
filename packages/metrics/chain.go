@@ -13,6 +13,7 @@ import (
 type ChainMetrics struct {
 	Pipe         *ChainPipeMetrics
 	BlockWAL     *ChainBlockWALMetrics
+	CmtLog       *ChainCmtLogMetrics
 	Consensus    *ChainConsensusMetrics
 	Mempool      *ChainMempoolMetrics
 	Message      *ChainMessageMetrics
@@ -30,6 +31,7 @@ type ChainMetricsProvider struct {
 
 	Pipe         *ChainPipeMetricsProvider
 	BlockWAL     *ChainBlockWALMetricsProvider
+	CmtLog       *ChainCmtLogMetricsProvider
 	Consensus    *ChainConsensusMetricsProvider
 	Mempool      *ChainMempoolMetricsProvider
 	Message      *ChainMessageMetricsProvider
@@ -46,13 +48,14 @@ func NewChainMetricsProvider() *ChainMetricsProvider {
 
 		Pipe:         newChainPipeMetricsProvider(),
 		BlockWAL:     newChainBlockWALMetricsProvider(),
+		CmtLog:       newChainCmtLogMetricsProvider(),
 		Consensus:    newChainConsensusMetricsProvider(),
 		Mempool:      newChainMempoolMetricsProvider(),
 		Message:      newChainMessageMetricsProvider(),
 		StateManager: newChainStateManagerMetricsProvider(),
 		Snapshots:    newChainSnapshotsMetricsProvider(),
 		NodeConn:     newChainNodeConnMetricsProvider(),
-		WebAPI:       newChainWebAPIMetricsProvider(),
+		WebAPI:       NewChainWebAPIMetricsProvider(),
 		State:        newChainStateMetricsProvider(),
 	}
 }
@@ -60,6 +63,7 @@ func NewChainMetricsProvider() *ChainMetricsProvider {
 func (m *ChainMetricsProvider) Register(reg prometheus.Registerer) {
 	m.Pipe.register(reg)
 	m.BlockWAL.register(reg)
+	m.CmtLog.register(reg)
 	m.Consensus.register(reg)
 	m.Mempool.register(reg)
 	m.Message.register(reg)
@@ -80,13 +84,14 @@ func (m *ChainMetricsProvider) GetChainMetrics(chainID isc.ChainID) *ChainMetric
 	cm := &ChainMetrics{
 		Pipe:         m.Pipe.createForChain(chainID),
 		BlockWAL:     m.BlockWAL.createForChain(chainID),
+		CmtLog:       m.CmtLog.createForChain(chainID),
 		Consensus:    m.Consensus.createForChain(chainID),
 		Mempool:      m.Mempool.createForChain(chainID),
 		Message:      m.Message.createForChain(chainID),
 		StateManager: m.StateManager.createForChain(chainID),
 		Snapshots:    m.Snapshots.createForChain(chainID),
 		NodeConn:     m.NodeConn.createForChain(chainID),
-		WebAPI:       m.WebAPI.createForChain(chainID),
+		WebAPI:       m.WebAPI.CreateForChain(chainID),
 		State:        m.State.createForChain(chainID),
 	}
 	m.chains[chainID] = cm

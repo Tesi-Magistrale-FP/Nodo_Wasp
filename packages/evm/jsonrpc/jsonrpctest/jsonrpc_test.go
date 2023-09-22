@@ -20,6 +20,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/iotaledger/hive.go/logger"
+	"github.com/iotaledger/wasp/packages/evm/evmerrors"
 	"github.com/iotaledger/wasp/packages/evm/evmtest"
 	"github.com/iotaledger/wasp/packages/evm/evmtypes"
 	"github.com/iotaledger/wasp/packages/evm/evmutil"
@@ -37,8 +38,6 @@ type soloTestEnv struct {
 }
 
 func newSoloTestEnv(t testing.TB) *soloTestEnv {
-	evmtest.InitGoEthLogger(t)
-
 	var log *logger.Logger
 	if _, ok := t.(*testing.B); ok {
 		log = testlogger.NewSilentLogger(t.Name(), true)
@@ -83,7 +82,7 @@ func TestRPCGetBalance(t *testing.T) {
 	_, nonEmptyAddress := env.soloChain.NewEthereumAccountWithL2Funds()
 	require.Equal(
 		t,
-		env.soloChain.L2BaseTokens(isc.NewEthereumAddressAgentID(nonEmptyAddress))*1e12,
+		env.soloChain.L2BaseTokens(isc.NewEthereumAddressAgentID(env.soloChain.ChainID, nonEmptyAddress))*1e12,
 		env.Balance(nonEmptyAddress).Uint64(),
 	)
 }
@@ -454,6 +453,36 @@ func TestRPCTxRejectedIfNotEnoughFunds(t *testing.T) {
 	err = env.Client.SendTransaction(context.Background(), tx)
 	require.Error(t, err)
 	require.Contains(t, err.Error(), "sender doesn't have enough L2 funds to cover tx gas budget")
+}
+
+func TestRPCCustomError(t *testing.T) {
+	env := newSoloTestEnv(t)
+	creator, creatorAddress := env.soloChain.NewEthereumAccountWithL2Funds()
+	contractABI, err := abi.JSON(strings.NewReader(evmtest.ISCTestContractABI))
+	require.NoError(t, err)
+	_, _, contractAddress := env.DeployEVMContract(creator, contractABI, evmtest.ISCTestContractBytecode)
+
+	callArguments, err := contractABI.Pack("revertWithCustomError")
+	require.NoError(t, err)
+
+	_, err = env.Client.CallContract(context.Background(), ethereum.CallMsg{
+		From: creatorAddress,
+		To:   &contractAddress,
+		Data: callArguments,
+	}, nil)
+	require.ErrorContains(t, err, "execution reverted")
+
+	dataErr, ok := err.(rpc.DataError)
+	require.True(t, ok)
+
+	revertData, err := hexutil.Decode(dataErr.ErrorData().(string))
+	require.NoError(t, err)
+
+	args, err := evmerrors.UnpackCustomError(revertData, contractABI.Errors["CustomError"])
+	require.NoError(t, err)
+
+	require.Len(t, args, 1)
+	require.EqualValues(t, 42, args[0])
 }
 
 func BenchmarkRPCEstimateGas(b *testing.B) {
