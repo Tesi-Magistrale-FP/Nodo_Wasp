@@ -20,25 +20,29 @@
 
 ### Setup con Docker Desktop
 Comandi per eseguire un nodo Wasp localmente:
-`git clone https://github.com/Tesi-Magistrale-FP/Nodo_Wasp.git`
-`cd Nodo_Wasp\tools\local-setup`
-`docker-compose up -d`
-`docker volume create --name hornet-nest-db`
-`docker volume create --name wasp-db`
-`docker-compose up -d`
+```
+git clone https://github.com/Tesi-Magistrale-FP/Nodo_Wasp.git
+cd Nodo_Wasp\tools\local-setup
+docker-compose up -d
+docker volume create --name hornet-nest-db
+docker volume create --name wasp-db
+docker-compose up -d
+```
 
 ### Setup chain di test
 Comandi per creare e attivare una chain di test su cui effettuare il deployment degli ISC:
-`cd Nodo_Wasp\tools\local-setup`
-`wasp-cli init`
-`wasp-cli set l1.apiaddress http://localhost:14265`
-`wasp-cli set l1.faucetaddress http://localhost:8091`
-`wasp-cli wasp add 0 http://localhost:9090`
-`wasp-cli request-funds`
-`wasp-cli chain deploy --chain=mychain`
-`wasp-cli chain add mychain <ID_CHAIN>`
-`wasp-cli chain activate --chain=mychain`
-`wasp-cli chain deposit base:500000000 --chain=mychain`
+```
+cd Nodo_Wasp\tools\local-setup
+wasp-cli init
+wasp-cli set l1.apiaddress http://localhost:14265
+wasp-cli set l1.faucetaddress http://localhost:8091
+wasp-cli wasp add 0 http://localhost:9090
+wasp-cli request-funds
+wasp-cli chain deploy --chain=mychain
+wasp-cli chain add mychain <ID_CHAIN>
+wasp-cli chain activate --chain=mychain
+wasp-cli chain deposit base:500000000 --chain=mychain
+```
 
 ### Generazione, deployment e interrograzione ISC
 Comandi per generare l'[ISC Autenticazione](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autenticazione), effettuare il suo deployment e chiamare le funzioni Func e View:
@@ -47,8 +51,8 @@ cd Nodo-Wasp\contracts\wasm
 schema -init autenticazione
 cd autenticazione
 ```
-Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml)
-`schema -rs`
+Modificare il file [schema.yaml](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/schema.yaml) <br>
+`schema -rs`<br>
 Implementare la logica delle funzioni [func.rs](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/blob/main/contracts/wasm/autenticazione/rs/autenticazioneimpl/src/funcs.rs)
 ```
 schema -rs -build
