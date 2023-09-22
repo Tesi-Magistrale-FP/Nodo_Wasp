@@ -35,8 +35,6 @@ wasp-cli chain activate --chain=mychain
 
 wasp-cli chain deposit base:500000000 --chain=mychain
 
-Collegarsi a http://localhost:8091/ e inserire l'ID della chain tst1pr0vumwnwz6tegpuy2nn8yatwfdrfkah073xfc849w4r9zmzcq387un7qf7
-
 *
 ***** Deploy di un IOTA Smart Contract Wasm *****
 *
