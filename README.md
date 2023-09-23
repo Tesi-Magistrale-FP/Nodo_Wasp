@@ -27,7 +27,7 @@ Comandi per eseguire un nodo Wasp localmente:
 ```
 git clone https://github.com/Tesi-Magistrale-FP/Nodo_Wasp.git
 cd Nodo_Wasp\tools\local-setup
-docker-compose up -d
+docker-compose pull
 docker volume create --name hornet-nest-db
 docker volume create --name wasp-db
 docker-compose up -d
