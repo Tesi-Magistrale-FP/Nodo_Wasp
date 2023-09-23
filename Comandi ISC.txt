@@ -1,45 +1,6 @@
-*** Setting del nodo Wasp e della chain ***
-*
-* Dentro la directory Nodo-Wasp\tools\local-setup
-*
-
-git clone https://github.com/iotaledger/wasp.git
-
-cd Nodo-Wasp\tools\local-setup
-
-docker-compose pull
-
-docker volume create --name hornet-nest-db
-
-docker volume create --name wasp-db
-
-docker-compose up -d
-
-* Controllare di avere l'ultima versione di wasp-cli *
-
-wasp-cli init
-
-wasp-cli set l1.apiaddress http://localhost:14265
-
-wasp-cli set l1.faucetaddress http://localhost:8091
-
-wasp-cli wasp add 0 http://localhost:9090
-
-wasp-cli request-funds
-
-wasp-cli chain deploy --chain=mychain
-
-wasp-cli chain add mychain tst1pr0vumwnwz6tegpuy2nn8yatwfdrfkah073xfc849w4r9zmzcq387un7qf7
-
-wasp-cli chain activate --chain=mychain
-
-wasp-cli chain deposit base:500000000 --chain=mychain
-
-*
-***** Deploy di un IOTA Smart Contract Wasm *****
-*
-* Dentro la directory Nodo-Wasp\tools\local-setup
-*
+*****************
+*   INCOUNTER   *
+*****************
 
 cd Nodo-Wasp\tools\local-setup
 
@@ -49,36 +10,11 @@ wasp-cli chain post-request inccounter increment --chain=mychain -s
 
 wasp-cli chain call-view inccounter getCounter --chain=mychain | wasp-cli decode string counter int
 
-*
-***** Creazione IOTA Smart Contract Wasm *****
-*
-* Dentro la directory Nodo-Wasp\contracts\wasm e Nodo-Wasp\tools\local-setup
-*
+**********************
+*   AUTENTICAZIONE   *
+**********************
 
-cd Nodo-Wasp\contracts\wasm
-
-schema -init mycontract
-
-cd mycontract
-
-schema -rs
-
-schema -rs -build
-
-cd ..\..\tools\local-setup
-
-wasp-cli chain deploy-contract wasmtime mycontract "mycontract SC" ..\..\contracts\wasm\mycontract\rs\mycontractwasm\pkg\mycontractwasm_bg.wasm --chain=mychain
-
-wasp-cli chain post-request mycontract setProva String prova String "Valore 1" --chain=mychain
-
-wasp-cli chain call-view mycontract getProva --chain=mychain
-
-*********************
-   AUTENTICAZIONE   *
-*********************
-schema -init autenticazione
-
-schema -rs -build
+cd Nodo-Wasp\tools\local-setup
 
 wasp-cli chain deploy-contract wasmtime autenticazione "autenticazione SC" ..\..\contracts\wasm\autenticazione\rs\autenticazionewasm\pkg\autenticazionewasm_bg.wasm --chain=mychain
 
@@ -88,6 +24,16 @@ wasp-cli chain call-view autenticazione login String did String "prova" String p
 
 wasp-cli chain post-request autenticazione eliminazione String did String "prova" String password String "prova" --chain=mychain -s
 
-******
+**********************
+*   AUTORIZZAZIONI   *
+**********************
 
-wasp-cli chain deploy-contract wasmtime mycontract4 "mycontract4 SC" ..\..\contracts\wasm\mycontract4\rs\mycontract4wasm\pkg\mycontract4wasm_bg.wasm --chain=mychain
+cd Nodo-Wasp\tools\local-setup
+
+wasp-cli chain deploy-contract wasmtime autorizzazioni "autorizzazioni SC" ..\..\contracts\wasm\autorizzazioni\rs\autorizzazioniwasm\pkg\autorizzazioniwasm_bg.wasm --chain=mychain
+
+wasp-cli chain post-request autorizzazioni fornisciAutorizzazione String didProduttore String "prova" String applicazione Int32 0 String operazione Int32 0 --chain=mychain -s
+
+wasp-cli chain call-view autorizzazioni controllaAutorizzazione String didProduttore String "prova" String applicazione Int32 0 String operazione Int32 0 --chain=mychain | wasp-cli decode string esitoC bool
+
+wasp-cli chain post-request autorizzazioni rimuoviAutorizzazione String didProduttore String "prova" String applicazione Int32 0 String operazione Int32 0 --chain=mychain -s

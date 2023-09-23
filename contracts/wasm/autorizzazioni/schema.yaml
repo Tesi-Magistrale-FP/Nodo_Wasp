@@ -1,0 +1,38 @@
+copyright: ""
+name: autorizzazioni
+version: 0.0.1
+description: Smart contract per gestire le autorizzazioni dei produttori
+author: Paglia Francesco
+license: ""
+repository: https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autorizzazioni
+events:
+    autorizzazioneFornita:
+    autorizzazioneRimossa:
+structs:
+    Autorizzazione:
+        concessa: Bool
+        applicazione: Int32
+        operazione: Int32
+typedefs:
+    ElencoAutorizzazioni: Autorizzazione[]
+state:
+    autorizzazioni: map[String]ElencoAutorizzazioni
+funcs:
+    fornisciAutorizzazione:
+        params:
+            didProduttore: String
+            applicazione: Int32
+            operazione: Int32
+    rimuoviAutorizzazione:
+        params:
+            didProduttore: String
+            applicazione: Int32
+            operazione: Int32
+views:
+    controllaAutorizzazione:
+        params:
+            didProduttore: String
+            applicazione: Int32
+            operazione: Int32
+        results:
+            esitoC: Bool
