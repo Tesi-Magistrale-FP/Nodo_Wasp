@@ -8,12 +8,6 @@ pub fn func_fornisci_autorizzazione(ctx: &ScFuncContext, f: &FornisciAutorizzazi
 	let applicazione: i32 = f.params.applicazione().value();
 	let operazione: i32 = f.params.operazione().value();
 
-	let autorizzazione = Autorizzazione {
-		concessa: true,
-		applicazione: applicazione, 
-		operazione: operazione,
-	};
-	
 	let elenco_autorizzazioni: MapStringToMutableElencoAutorizzazioni = f.state.autorizzazioni();
 	let autorizzazioni_utente: ArrayOfMutableAutorizzazione = elenco_autorizzazioni.get_elenco_autorizzazioni(&did);
 
@@ -21,15 +15,22 @@ pub fn func_fornisci_autorizzazione(ctx: &ScFuncContext, f: &FornisciAutorizzazi
 	{
 		for i in 0..autorizzazioni_utente.length() 
 		{
-			let autorizzazione: Autorizzazione = autorizzazioni_utente.get_autorizzazione(i).value();
+			let mut autorizzazione: Autorizzazione = autorizzazioni_utente.get_autorizzazione(i).value();
 			if autorizzazione.applicazione == applicazione && autorizzazione.operazione == operazione
 			{
+				autorizzazione.concessa = true;
 				autorizzazioni_utente.get_autorizzazione(i).set_value(&autorizzazione);
 				f.events.autorizzazione_fornita();
 				return;
 			}
 		}
 	}
+
+	let autorizzazione = Autorizzazione {
+		concessa: true,
+		applicazione: applicazione, 
+		operazione: operazione,
+	};
 
 	autorizzazioni_utente.append_autorizzazione().set_value(&autorizzazione);
 	f.events.autorizzazione_fornita();
@@ -48,15 +49,10 @@ pub fn func_rimuovi_autorizzazione(ctx: &ScFuncContext, f: &RimuoviAutorizzazion
 	{
 		for i in 0..autorizzazioni_utente.length() 
 		{
-			let autorizzazione: Autorizzazione = autorizzazioni_utente.get_autorizzazione(i).value();
+			let mut autorizzazione: Autorizzazione = autorizzazioni_utente.get_autorizzazione(i).value();
 			if autorizzazione.applicazione == applicazione && autorizzazione.operazione == operazione
 			{
-				let autorizzazione = Autorizzazione {
-					concessa: false,
-					applicazione: applicazione, 
-					operazione: operazione,
-				};
-
+				autorizzazione.concessa = false;
 				autorizzazioni_utente.get_autorizzazione(i).set_value(&autorizzazione);
 				f.events.autorizzazione_rimossa();
 				return;
