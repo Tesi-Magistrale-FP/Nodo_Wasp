@@ -47,10 +47,7 @@ members = [
 #    "timestamp/rs/timestampwasm",
 #    "tokenregistry/rs/tokenregistry",
 #    "tokenregistry/rs/tokenregistryimpl",
-#    "tokenregistry/rs/tokenregistrywasm",
-#	"mycontract/rs/mycontract",
-#	"mycontract/rs/mycontractimpl",
-#	"mycontract/rs/mycontractwasm",
+#    "tokenregistry/rs/tokenregistrywasm",s
 	"autenticazione/rs/autenticazione",
 	"autenticazione/rs/autenticazioneimpl",
 	"autenticazione/rs/autenticazionewasm",

@@ -1,11 +1,15 @@
 copyright: ""
 name: autenticazione
 version: 0.0.1
-description: smart contract per gestire l'autenticazione
+description: Smart contract per gestire l'autenticazione
 author: Paglia Francesco
 license: ""
-repository: ""
-events: {}
+repository: https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autenticazione
+events: 
+    registrazioneSuccesso:
+    registrazioneFallimento:
+    eliminazioneSuccesso:
+    eliminazioneFallimento:
 structs: {}
 typedefs: {}
 state:

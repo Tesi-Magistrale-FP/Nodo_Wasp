@@ -17,8 +17,12 @@ pub fn func_eliminazione(ctx: &ScFuncContext, f: &EliminazioneContext)									/
         if pwd_utente_c == password																		// Se la password recuperata e quella ricevuta in input sono uguali
         {
             pwd_utente.set_value(&String::from(""));													// Elimino l'utente
+			f.events.eliminazione_successo();															// Evento che indica il successo dell'eliminazione
+			return;
         }
     }
+	
+	f.events.eliminazione_fallimento();																	// Evento che indica il fallimento dell'eliminazione
 }
 
 pub fn func_registrazione(ctx: &ScFuncContext, f: &RegistrazioneContext) 								// Registrazione utente
@@ -36,12 +40,18 @@ pub fn func_registrazione(ctx: &ScFuncContext, f: &RegistrazioneContext) 							
         if pwd_utente_c == String::from("")
         {
 			pwd_utente.set_value(&password);
+			f.events.registrazione_successo();
+			return;
 		}
     }
     else
     {
         pwd_utente.set_value(&password);
+		f.events.registrazione_successo();
+		return;
     }
+	
+	f.events.registrazione_fallimento();
 }
 
 pub fn view_login(ctx: &ScViewContext, f: &LoginContext) 												// Login utente
@@ -58,9 +68,9 @@ pub fn view_login(ctx: &ScViewContext, f: &LoginContext) 												// Login ut
 		
         if pwd_utente_c == password && pwd_utente_c != String::from("")
         {
-            f.results.esito_l().set_value(true);
+            f.results.esito_l().set_value(true);														// Login eseguito con successo
             return;
         }
     }
-    f.results.esito_l().set_value(false);
+    f.results.esito_l().set_value(false);																// Login fallito
 }
