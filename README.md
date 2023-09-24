@@ -3,7 +3,8 @@
 
 ### IOTA Smart Contracts implementati
 - [Autenticazione](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autenticazione): autentica gli utenti nell'ecosistema.
-- [Gestione applicazioni](): gestisce le applicazioni pubblicate, le operazioni sui dati e le autorizzazioni concesse.
+- [Autorizzazioni](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autorizzazioni): gestisce le autorizzazioni dei produttori.
+- [Gestione applicazioni](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/gestioneapplicazioni): gestisce le applicazioni pubblicate, le operazioni sui dati e l'accesso ai canali Streams.
 
 ### Requisiti
 - [Go](https://golang.org/dl/)
