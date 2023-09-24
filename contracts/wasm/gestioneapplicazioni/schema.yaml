@@ -1,0 +1,177 @@
+copyright: ""
+name: gestioneapplicazioni
+version: 0.0.1
+description: Smart contract per gestire le applicazioni, le operazioni sui dati e l'accesso ai canali Streams
+author: Paglia Francesco
+license: ""
+repository: https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/gestioneapplicazioni
+events:
+    applicazionePubblicata:
+    applicazioneModificata:
+    applicazioneNonModificata:
+    nomeAppUsato:
+    utenteRegistrato:
+    operazioneAggiunta:
+    operazioneInesistente:
+    operazioneAttivata:
+    operazioneDisattivata:
+    canaliCreati:
+    indirizziModificati:
+    iscrittoAggiunto:
+structs: 
+    Applicazione:
+        nome: String
+        descrizione: String
+        url: String
+        didProprietario: String
+        attivaApp: Bool
+    Operazione:
+        idApp: Int32
+        titolo: String
+        descrizione: String
+        software: String
+        tipo: Int32
+        attivaOp: Bool
+    Canali:
+        idApp: Int32
+        idOp: Int32
+        didProduttore: String
+        autoreDati: String
+        annuncioDati: String
+        indUltMsgDati: String
+        autoreLog: String
+        annuncioLog: String
+        indUltMsgLog: String
+    Iscritto:
+        idApp: Int32
+        idOp: Int32
+        didProduttore: String
+        didConsumatore: String
+        iscrittoDati: String
+        iscrittoLog: String
+typedefs: {}
+state:
+    applicazioni: Applicazione[]
+    operazioni: Operazione[]
+    canali: Canali[]
+    iscritti: Iscritto[]
+    utenti: map[String]String                               # Id app | DID utente -> Credenziali verificabili utente
+funcs:
+    pubblicaApplicazione:
+        params:
+            nome: String
+            descrizione: String
+            url: String
+            didProprietario: String
+    modificaApplicazione:
+        params:
+            nomeAttuale: String
+            nome: String
+            descrizione: String
+            url: String
+            didProprietario: String
+            attiva: Bool
+    registraUtenteVC:
+        params:
+            rifUtente: String                               # Id app | DID utente
+            vcUtente: String      
+    aggiungiOperazione:
+        params:
+            idApp: Int32
+            titolo: String
+            descrizione: String
+            software: String
+            tipo: Int32
+    modificaStatoOperazione:
+        params:
+            idApp: Int32
+            titolo: String
+            nuovoStato: Bool 
+    creaCanali:
+        params:
+            idApp: Int32
+            idOp: Int32
+            didProduttore: String
+            autoreDati: String
+            annuncioDati: String
+            indUltMsgDati: String
+            autoreLog: String
+            annuncioLog: String
+            indUltMsgLog: String
+    modificaIndUltMsg:
+        params:
+            idApp: Int32
+            idOp: Int32
+            didProduttore: String
+            indUltMsgDati: String
+            indUltMsgLog: String
+    aggiungiIscritto:
+        params:
+            idApp: Int32
+            idOp: Int32
+            didProduttore: String
+            didConsumatore: String
+            iscrittoDati: String
+            iscrittoLog: String
+views:
+    idApplicazione:
+        params:
+            nome: String
+            didProprietario: String
+        results:
+            idApp: Int32
+    datiApplicazione:
+        params:
+            idApp: Int32
+        results:
+            datiApp: String
+    elencoApplicazioni:
+        results:
+            numeroApps: Int32
+    elencoAppsUtente:
+        params:
+            didUtente: String
+        results:
+            idApps: String
+    verificaUtenteVC:
+        params:
+            rifUtente: String
+            vcUtente: String
+        results:
+            esitoC: Bool
+    idOperazione:
+        params:
+            idApp: Int32
+            titolo: String
+        results:
+            idOp: Int32
+    datiOperazione:
+        params:
+            idOp: Int32
+        results:
+            datiOp: String
+    elencoOperazioni:
+        results:
+            numeroOps: Int32
+    indUltMsg:
+        params:
+            idApp: Int32
+            idOp: Int32
+            didProduttore: String
+        results:
+            indirizzi: String
+    ottieniAutore:
+        params:
+            idApp: Int32
+            idOp: Int32
+            didProduttore: String
+        results:
+            autori: String                                  # Autore dati + log
+    ottieniIscritto:
+        params:
+            idApp: Int32
+            idOp: Int32
+            didProduttore: String
+            didConsumatore: String
+        results:
+            iscritti: String                                # Iscritto dati + log    

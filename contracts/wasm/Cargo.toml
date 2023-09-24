@@ -54,6 +54,9 @@ members = [
 	"autorizzazioni/rs/autorizzazioni",
 	"autorizzazioni/rs/autorizzazioniimpl",
 	"autorizzazioni/rs/autorizzazioniwasm",
+	"gestioneapplicazioni/rs/gestioneapplicazioni",
+	"gestioneapplicazioni/rs/gestioneapplicazioniimpl",
+	"gestioneapplicazioni/rs/gestioneapplicazioniwasm",
 ]
 
 [profile.release]
