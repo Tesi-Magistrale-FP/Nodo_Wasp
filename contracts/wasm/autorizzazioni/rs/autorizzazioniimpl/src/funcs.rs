@@ -91,3 +91,30 @@ pub fn view_controlla_autorizzazione(ctx: &ScViewContext, f: &ControllaAutorizza
 
 	f.results.esito_c().set_value(false);
 }
+
+pub fn view_elenco_autorizzazioni(ctx: &ScViewContext, f: &ElencoAutorizzazioniContext) 
+{
+	let did_produttore: String = f.params.did_produttore().value();
+	let elenco_autorizzazioni: MapStringToImmutableElencoAutorizzazioni = f.state.autorizzazioni();
+	let autorizzazioni_utente: ArrayOfImmutableAutorizzazione = elenco_autorizzazioni.get_elenco_autorizzazioni(&did_produttore);
+	let mut elenco: String = String::from("");
+
+	if autorizzazioni_utente.length() > 0
+	{
+		for i in 0..autorizzazioni_utente.length() 
+		{
+			let autorizzazione: Autorizzazione = autorizzazioni_utente.get_autorizzazione(i).value();
+			
+			if elenco.len() == 0
+			{
+				elenco = format!("{0}|{1}|{2}|{3}", autorizzazione.concessa, autorizzazione.id_applicazione, autorizzazione.id_operazione, autorizzazione.did_consumatore);
+			}
+			else
+			{
+				elenco = format!("{0}||{1}|{2}|{3}|{4}", elenco, autorizzazione.concessa, autorizzazione.id_applicazione, autorizzazione.id_operazione, autorizzazione.did_consumatore);
+			}
+		}
+	}
+
+	f.results.elenco().set_value(&elenco);
+}

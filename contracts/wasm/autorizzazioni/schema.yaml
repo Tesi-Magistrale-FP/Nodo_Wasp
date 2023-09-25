@@ -40,3 +40,8 @@ views:
             didConsumatore: String
         results:
             esitoC: Bool
+    elencoAutorizzazioni:
+        params:
+            didProduttore: String
+        results:
+            elenco: String

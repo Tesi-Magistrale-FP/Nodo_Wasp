@@ -8,6 +8,7 @@ ISC usato per gestire le autorizzazioni concesse dai produttori per i consumator
 
 ### Funzioni View
 - <strong>controllaAutorizzazione</strong>: controlla se un’autorizzazione è stata concessa o meno.
+- <strong>elencoAutorizzazioni</strong>: elenca le autorizzazioni di un determinato produttore.
 
 ## Comandi Wasp-cli
 Comando per eseguire il deployment:
@@ -25,4 +26,5 @@ Comandi per funzioni View:
 ```
 cd Nodo_Wasp\tools\local-setup
 wasp-cli chain call-view autorizzazioni controllaAutorizzazione String didProduttore String "provaP" String didConsumatore String "provaC" String idApplicazione Int32 0 String idOperazione Int32 0 --chain=mychain | wasp-cli decode string esitoC bool
+wasp-cli chain call-view autorizzazioni elencoAutorizzazioni String didProduttore String "provaP" --chain=mychain | wasp-cli decode string elenco string
 ```
