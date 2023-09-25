@@ -11,8 +11,9 @@ events:
 structs:
     Autorizzazione:
         concessa: Bool
-        applicazione: Int32
-        operazione: Int32
+        idApplicazione: Int32
+        idOperazione: Int32
+        didConsumatore: String
 typedefs:
     ElencoAutorizzazioni: Autorizzazione[]
 state:
@@ -21,18 +22,21 @@ funcs:
     fornisciAutorizzazione:
         params:
             didProduttore: String
-            applicazione: Int32
-            operazione: Int32
+            idApplicazione: Int32
+            idOperazione: Int32
+            didConsumatore: String
     rimuoviAutorizzazione:
         params:
             didProduttore: String
-            applicazione: Int32
-            operazione: Int32
+            idApplicazione: Int32
+            idOperazione: Int32
+            didConsumatore: String
 views:
     controllaAutorizzazione:
         params:
             didProduttore: String
-            applicazione: Int32
-            operazione: Int32
+            idApplicazione: Int32
+            idOperazione: Int32
+            didConsumatore: String
         results:
             esitoC: Bool

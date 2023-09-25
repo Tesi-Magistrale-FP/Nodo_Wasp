@@ -151,8 +151,10 @@ views:
         results:
             datiOp: String
     elencoOperazioni:
+        params:
+            idApp: Int32
         results:
-            numeroOps: Int32
+            idOps: String
     indUltMsg:
         params:
             idApp: Int32

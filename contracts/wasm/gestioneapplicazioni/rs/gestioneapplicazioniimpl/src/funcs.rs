@@ -355,9 +355,30 @@ pub fn view_elenco_apps_utente(ctx: &ScViewContext, f: &ElencoAppsUtenteContext)
 
 pub fn view_elenco_operazioni(ctx: &ScViewContext, f: &ElencoOperazioniContext) 
 {
+	let idApp: i32 = f.params.id_app().value();
 	let operazioni: ArrayOfImmutableOperazione = f.state.operazioni();
+	let mut risultato: String = String::from("");
 	
-	f.results.numero_ops().set_value(operazioni.length() as i32);
+	if operazioni.length() > 0
+	{
+		for i in 0..operazioni.length() 
+		{
+			let operazione: Operazione = operazioni.get_operazione(i).value();
+			if operazione.id_app == idApp
+			{
+				if risultato.len() == 0
+				{
+					risultato = format!("{0}", i);
+				}
+				else
+				{
+					risultato = format!("{0}|{1}", risultato, i);
+				}
+			}
+		}
+	}
+	
+	f.results.id_ops().set_value(&risultato);
 }
 
 pub fn view_id_applicazione(ctx: &ScViewContext, f: &IDApplicazioneContext) 
