@@ -15,14 +15,12 @@ Comando per eseguire il deployment:
 cd Nodo_Wasp\tools\local-setup
 wasp-cli chain deploy-contract wasmtime autenticazione "autenticazione SC" ..\..\contracts\wasm\autenticazione\rs\autenticazionewasm\pkg\autenticazionewasm_bg.wasm --chain=mychain
 ```
-<br>
 Comandi per funzioni Func:
 ```
 cd Nodo_Wasp\tools\local-setup
 wasp-cli chain post-request autenticazione registrazione String did String "did:prova" String password String "hash_pwd" --chain=mychain -s
 wasp-cli chain post-request autenticazione eliminazione String did String "did:prova" String password String "hash_pwd" --chain=mychain -s
 ```
-<br>
 Comandi per funzioni View:
 ```
 cd Nodo_Wasp\tools\local-setup
