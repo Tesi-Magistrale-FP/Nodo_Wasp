@@ -1,10 +1,15 @@
 # ISC - Autenticazione
 ISC usato per registrare e autenticare gli utenti nell'ecosistema.
 
-### Diagramma UML
-<img width=50% src="https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/diagrammi/autenticazione.png">
+## Funzioni 
+### Funzioni Func
+- <strong>Registrazione</strong>: registrazione utente nell'ecosistema.
+- <strong>Eliminazione</strong>: registrazione utente nell'ecosistema.
 
-### Comandi Wasp-cli
+### Funzioni View
+- <strong>Login</strong>: login utente nell'ecosistema.
+
+## Comandi Wasp-cli
 Comando per eseguire il deployment:
 ```
 cd Nodo_Wasp\tools\local-setup
