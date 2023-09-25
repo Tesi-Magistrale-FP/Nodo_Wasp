@@ -3,11 +3,11 @@ ISC usato per registrare e autenticare gli utenti nell'ecosistema.
 
 ## Funzioni 
 ### Funzioni Func
-- <strong>Registrazione</strong>: registrazione utente nell'ecosistema.
-- <strong>Eliminazione</strong>: registrazione utente nell'ecosistema.
+- <strong>registrazione</strong>: registrazione utente nell'ecosistema.
+- <strong>eliminazione</strong>: registrazione utente nell'ecosistema.
 
 ### Funzioni View
-- <strong>Login</strong>: login utente nell'ecosistema.
+- <strong>login</strong>: login utente nell'ecosistema.
 
 ## Comandi Wasp-cli
 Comando per eseguire il deployment:
