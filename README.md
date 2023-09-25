@@ -23,6 +23,7 @@
 - [Setup locale con Docker Desktop](https://github.com/iotaledger/wasp/tree/develop/tools/local-setup)
 - [Guida di IOTA | ISC, node e chains](https://wiki.iota.org/wasp/running-a-node/)
 
+## Comandi Wasp-cli
 ### Setup con Docker Desktop
 Comandi per eseguire un nodo Wasp localmente:
 ```

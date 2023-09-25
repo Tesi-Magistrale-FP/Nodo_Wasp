@@ -4,7 +4,7 @@ ISC usato per registrare e autenticare gli utenti nell'ecosistema.
 ### Diagramma UML
 ![Diagramma UML - ISC Autenticazione](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/diagrammi/autenticazione.png)
 
-### Comandi
+### Comandi Wasp-cli
 Comando per eseguire il deployment:
 ```
 cd Nodo_Wasp\tools\local-setup
