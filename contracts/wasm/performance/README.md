@@ -1,5 +1,5 @@
 # ISC - Performance
-ISC usato per misurare le performance di scrittura e lettura sugli ISC.
+ISC usato per misurare le performance di scrittura e lettura sugli smart contract.
 
 ## Funzioni 
 ### Funzioni Func
