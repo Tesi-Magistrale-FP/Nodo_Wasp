@@ -57,6 +57,9 @@ members = [
 	"gestioneapplicazioni/rs/gestioneapplicazioni",
 	"gestioneapplicazioni/rs/gestioneapplicazioniimpl",
 	"gestioneapplicazioni/rs/gestioneapplicazioniwasm",
+	"performance/rs/performance",
+	"performance/rs/performanceimpl",
+	"performance/rs/performancewasm",
 ]
 
 [profile.release]

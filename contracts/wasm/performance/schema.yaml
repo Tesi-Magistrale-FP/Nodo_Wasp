@@ -1,0 +1,23 @@
+copyright: ""
+name: performance
+version: 0.0.1
+description: Smart contract per valutare le performance delle interazioni con il sistema
+author: Paglia Francesco
+license: ""
+repository: https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/performance
+events:
+    valoreRegistrato:
+structs: {}
+typedefs: {}
+state:
+    valori: String[]
+funcs:
+    memorizzaValore:
+        params:
+            valore: String
+views:
+    ottieniValore:
+        params:
+            indice: Int32
+        results:
+            valore: String

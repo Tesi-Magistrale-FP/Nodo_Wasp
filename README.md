@@ -5,6 +5,7 @@
 - [Autenticazione](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autenticazione): autentica gli utenti nell'ecosistema.
 - [Autorizzazioni](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/autorizzazioni): gestisce le autorizzazioni dei produttori per i consumatori.
 - [Gestione applicazioni](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/gestioneapplicazioni): gestisce le applicazioni pubblicate, le operazioni sui dati e l'accesso ai canali Streams.
+- [Performance](https://github.com/Tesi-Magistrale-FP/Nodo_Wasp/tree/main/contracts/wasm/performance): usato per valutare le performance delle scritture e delle lettura sugli ISC.
 
 ### Requisiti
 - [Go](https://golang.org/dl/)
